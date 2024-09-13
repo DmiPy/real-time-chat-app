@@ -1,0 +1,69 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build files
+build/
+dist/
+out/
+coverage/
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Production
+build/
+tmp/
+temp/
+
+# Testing
+coverage/
+*.lcov
+
+# React
+.DS_Store
+*.eslintcache
+.vscode/
+.vscode-test/
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore the bundler cache
+/.cache
+/parcel-cache
+/.parcel-cache/
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REACT cache
+.cache/
+
+# Optional jest cache
+/jest/
+.jest/
