@@ -9,13 +9,13 @@ import { useNavigate } from 'react-router-dom';
 
 // Zod schema for validation
 const formSchema = z.object({
-  email: z.string().email( {message: "Invalid email address."}).min(5, {message: "Email should me at least 5 characters long."}),
+  email: z.string().email({ message: "Invalid email address." }).min(5, { message: "Email should me at least 5 characters long." }),
   password: z.string()
-    .regex(/[A-Z]/, {message: "Pass does not contain any uppercase character"})
-    .regex(/[a-z]/, {message: "Pass does not contaun any lowercase character"})
-    .regex(/[0-9]/, {message: "Pass does not contain any numbers in it"})
-    .regex(/[!#$%^&*(){}?]/, {message: "Special charachters?"})
-    .min(8, {message: "At least 8 characters, dude c'mon"})
+    .regex(/[A-Z]/, { message: "Pass does not contain any uppercase character" })
+    .regex(/[a-z]/, { message: "Pass does not contaun any lowercase character" })
+    .regex(/[0-9]/, { message: "Pass does not contain any numbers in it" })
+    .regex(/[!#$%^&*(){}?]/, { message: "Special charachters?" })
+    .min(8, { message: "At least 8 characters, dude c'mon" })
 })
 
 type FormInputs = z.infer<typeof formSchema>;
@@ -27,15 +27,15 @@ const AuthPage: React.FC = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       // Ensure these are initialized
-      email: '', 
-      password: '', 
+      email: '',
+      password: '',
     }
   });
 
   const { handleSubmit, formState: { errors } } = methods;
 
   const handleLogin = (email: string) => {
-    navigate("/create/profile", {state: {email}})
+    navigate("/create/profile", { state: { email } })
   }
 
   const onSubmit = (data: FormInputs) => {
@@ -94,11 +94,12 @@ const AuthPage: React.FC = () => {
               />
 
               <div className="flex justify-between items-center my-4">
-                <label className="flex items-center space-x-2 text-sm">
+                {isSignUp ? 
+                (<label className="flex items-center space-x-2 text-sm">
                   <input type="checkbox" className="rounded" />
                   <span>Remember Me</span>
-                </label>
-                <a href="#" className="text-sm text-gray-500">Forgot Password?</a>
+                </label>) 
+                : <><a href="#" className="text-sm text-gray-500">Forgot Password?</a></>}
               </div>
 
               <Button variant="default" type="submit" className="w-full bg-gradient-to-r from-purple-500 to-red-500 text-white">
