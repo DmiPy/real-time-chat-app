@@ -31,7 +31,10 @@ const ChatPage: React.FC = () => {
           type="text"
           className="flex-grow border border-gray-300 rounded-l-md p-2"
           value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          onChange={(e) => {
+            setNewMessage(e.target.value)
+            console.log(e.target.value)
+          }}
           placeholder="Type a message..."
         />
         <button type="submit" className="bg-blue-500 text-white p-2 rounded-r-md">Send</button>
