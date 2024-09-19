@@ -25,6 +25,9 @@ export default {
         		800: '#1a202c',
         		900: '#171923',
 			  },
+			  raceyellow : {
+				900: "f2ff2e"
+			  },
 			  purple: {
 				50: '#f5f3ff',
 				100: '#ede9fe',
@@ -37,6 +40,7 @@ export default {
 				800: '#5b21b6',
 				900: '#4c1d95',
 			  },
+			  
 			  background: '#0f172a', // Темный slate цвет
 			  foreground: '#8b5cf6', // Фиолетовый для текста
 			  

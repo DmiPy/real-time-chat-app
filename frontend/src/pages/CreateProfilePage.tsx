@@ -1,37 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
+import { Upload } from 'lucide-react';
 
 interface CreateProfilePageProps {
   email?: string; // Passed from AuthPage
 }
 
 function getNameInitials(mail: string, firstName?: string, lastName?: string): string {
+  let initials = '';
+
   if (firstName && lastName) {
-    return `${firstName[0]}${lastName[0]}`
+    initials = `${firstName[0]}${lastName[0]}`;
+  } else if (firstName) {
+    initials = `${firstName[0]}`;
+  } else if (lastName) {
+    initials = `${lastName[0]}`;
   }
-  else if (firstName) {
-    return `${firstName[0]}`
-  }
-  else if (lastName){
-    return `${lastName[0]}`
-  }
-  return mail[0].toUpperCase()
+
+  return initials ? initials.toUpperCase() : mail[0].toUpperCase();
 }
 
 const CreateProfilePage: React.FC<CreateProfilePageProps> = () => {
-  const [selectedColor, setSelectedColor] = useState('red'); // Default color
-
   const { register, handleSubmit, setValue } = useForm();
   const location = useLocation();
-  const email = location.state?.email; // Retrieve email from location.state
-  // Состояние для хранения имени и фамилии
+  const email = location.state?.email;
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Preview the image
+        setAvatarPreview(reader.result as string); 
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFirstName(e.target.value);
@@ -41,96 +56,96 @@ const CreateProfilePage: React.FC<CreateProfilePageProps> = () => {
     setLastName(e.target.value);
   };
 
-  // Инициализация и получение инициалов
   const initials = getNameInitials(email, firstName, lastName);
 
-  // Autofill the email field if email prop exists
   useEffect(() => {
     if (email) {
-      console.log('Email from location:', email);
       setValue('email', email);
+      console.log(avatarPreview);
     }
   }, [email, setValue]);
 
   const onSubmit = (data: any) => {
-    console.log('Profile Data:', data);
+    const profileData = {
+      ...data,
+      firstName,
+      lastName,
+      avatar: avatarPreview
+    };
+
+    console.log('Profile Data with Avatar:', profileData);
   };
 
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-900">
-      <Card className="bg-slate-800 p-6 rounded-md w-96">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="bg-white border border-gray-300 p-6 rounded-md w-96 shadow-md">
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Profile Picture and Color Selection */}
             <div className="flex justify-center items-center space-x-4">
-              <div className={`rounded-full h-24 w-24 flex items-center justify-center 
-                  ${selectedColor === 'purple' && 'bg-purple-600'}
-                  ${selectedColor === 'teal' && 'bg-teal-600'}
-                  ${selectedColor === 'yellow' && 'bg-yellow-600'}
-                  ${selectedColor === 'red' && 'bg-red-600'}
-              `}>
-                <span className="text-3xl text-white">{`${initials}`}</span>
-              </div>
-              {/* Color Select */}
-              <div className="flex space-x-4">
-                <button
-                  type="button"
-                  className={`rounded-full h-8 w-8 bg-red-500 ${selectedColor === 'red' ? 'ring-4 ring-red-700' : ''}`}
-                  onClick={() => setSelectedColor('red')}
-                />
-                <button
-                  type="button"
-                  className={`rounded-full h-8 w-8 bg-purple-500 ${selectedColor === 'purple' ? 'ring-4 ring-purple-700' : ''}`}
-                  onClick={() => setSelectedColor('purple')}
-                />
-                <button
-                  type="button"
-                  className={`rounded-full h-8 w-8 bg-yellow-500 ${selectedColor === 'yellow' ? 'ring-4 ring-yellow-700' : ''}`}
-                  onClick={() => setSelectedColor('yellow')}
-                />
-                <button
-                  type="button"
-                  className={`rounded-full h-8 w-8 bg-teal-500 ${selectedColor === 'teal' ? 'ring-4 ring-teal-700' : ''}`}
-                  onClick={() => setSelectedColor('teal')}
-                />
-              </div>
+              {/* Avatar Preview */}
+              <Avatar className="w-24 h-24">
+                {avatarPreview ? (
+                  <AvatarImage src={avatarPreview} alt="Uploaded Avatar" />
+                ) : (
+                  <AvatarFallback>{initials}</AvatarFallback>
+                )}
+              </Avatar>
+
+              {/* Trigger file input */}
+              <Button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-blue-500 text-white"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Avatar
+              </Button>
+
+              {/* Hidden file input */}
+              <Input
+               // Connect file input with ref
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
             </div>
 
             {/* Email Input */}
             <div>
-              <Label htmlFor="email" className="text-slate-300">Email</Label>
+              <Label htmlFor="email" className="text-gray-700">Email</Label>
               <Input
                 type="email"
                 id="email"
                 placeholder="Enter your email"
                 {...register('email')}
-                className="bg-slate-700 text-white"
+                className="bg-gray-100 text-gray-800"
               />
             </div>
 
             {/* First Name Input */}
             <div>
-              <Label htmlFor="firstName" className="text-slate-300">First Name</Label>
+              <Label htmlFor="firstName" className="text-gray-700">First Name</Label>
               <Input
                 type="text"
                 id="firstName"
                 placeholder="First Name"
                 {...register('firstName')}
-                className="bg-slate-700 text-white"
+                className="bg-gray-100 text-gray-800"
                 onChange={handleFirstNameChange}
               />
             </div>
 
             {/* Last Name Input */}
             <div>
-              <Label htmlFor="lastName" className="text-slate-300">Last Name</Label>
+              <Label htmlFor="lastName" className="text-gray-700">Last Name</Label>
               <Input
                 type="text"
                 id="lastName"
                 placeholder="Last Name"
                 {...register('lastName')}
-                className="bg-slate-700 text-white"
+                className="bg-gray-100 text-gray-800"
                 onChange={handleLastNameChange}
               />
             </div>
