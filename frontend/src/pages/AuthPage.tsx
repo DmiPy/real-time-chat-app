@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { useForm, FormProvider } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { useNavigate } from 'react-router-dom';
 
 // Zod schema for validation
@@ -15,12 +15,16 @@ const formSchema = z.object({
     .regex(/[a-z]/, { message: "Pass does not contaun any lowercase character" })
     .regex(/[0-9]/, { message: "Pass does not contain any numbers in it" })
     .regex(/[!#$%^&*(){}?]/, { message: "Special charachters?" })
-    .min(8, { message: "At least 8 characters, dude c'mon" })
+    .min(8, { message: "At least 8 characters, dude c'mon" }),
+  confirm_password: z.string().min(8)
 })
 
 type FormInputs = z.infer<typeof formSchema>;
 
 const AuthPage: React.FC = () => {
+  const [ email, setEmail ] = useState<string>("");
+  const [ password, setPassword ] = useState<string>("");
+  const [ifConfirmedPassCorrect , setIfConfirmedPassCorrect ] = useState<boolean>(true);
   const [isSignUp, setIsSignUp] = useState(true);
   const navigate = useNavigate()
   const methods = useForm<FormInputs>({
@@ -29,8 +33,11 @@ const AuthPage: React.FC = () => {
       // Ensure these are initialized
       email: '',
       password: '',
-    }
+      confirm_password: '',
+        }
   });
+
+
 
   const { handleSubmit, formState: { errors } } = methods;
 
@@ -38,14 +45,26 @@ const AuthPage: React.FC = () => {
     navigate("/create/profile", { state: { email } })
   }
 
+  // const { getValues } = methods;
+  // const currentValues = getValues();
   const onSubmit = (data: FormInputs) => {
-    if (isSignUp) {
-      console.log('SignUp:', data);
-      handleLogin(data.email)
+    setEmail(data.email);
+    setPassword(data.password);
+    // console.log("current values", currentValues.email, currentValues.password);
+    
+    if (isSignUp ) {
+      if (data.password === data.confirm_password) {
+        setIfConfirmedPassCorrect(true);      
+        handleLogin(data.email)
+      } else {
+        setIfConfirmedPassCorrect(false);
+      }
+      
     } else {
       console.log('Login:', data);
     }
   };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-100">
@@ -56,7 +75,7 @@ const AuthPage: React.FC = () => {
 
           {/* Wrap form components inside FormProvider */}
           <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}>  
               <FormField
                 control={methods.control}
                 name="email"
@@ -92,14 +111,35 @@ const AuthPage: React.FC = () => {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={methods.control}
+                name="confirm_password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel></FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Confirm your password"
+                        {...field}
+                        // onChange={(e) => {
+                        //   field.onChange(e); // Call RHF's onChange to maintain form state
+                        //   console.log(e.target.value); // Add your custom onChange logic
+                        // }}
+                      />
+                    </FormControl>
+                    <FormMessage>{ifConfirmedPassCorrect ? "" : "Passwords do not match"}</FormMessage>
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-between items-center my-4">
-                {isSignUp ? 
-                (<label className="flex items-center space-x-2 text-sm">
-                  <input type="checkbox" className="rounded" />
-                  <span>Remember Me</span>
-                </label>) 
-                : <><a href="#" className="text-sm text-gray-500">Forgot Password?</a></>}
+                {isSignUp ?
+                  (<label className="flex items-center space-x-2 text-sm">
+                    <input type="checkbox" className="rounded" />
+                    <span>Remember Me</span>
+                  </label>)
+                  : <><a href="#" className="text-sm text-gray-500">Forgot Password?</a></>}
               </div>
 
               <Button variant="default" type="submit" className="w-full bg-gradient-to-r from-purple-500 to-red-500 text-white">
